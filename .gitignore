@@ -1,7 +1,8 @@
 HELP.md
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
+!.github/workflows/build.yml
+!backend/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -35,3 +36,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Environment secrets ###
+.env
+!backend/.env
