@@ -35,6 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "app.activation.base-url=http://localhost:8080",
     "app.activation.from-email=test@example.com",
     "app.activation.token-expiration-hours=24",
+    "app.password-reset.base-url=http://localhost:8080",
+    "app.password-reset.from-email=test@example.com",
+    "app.password-reset.token-expiration-hours=24",
     "spring.mail.host=localhost",
     "spring.mail.port=1025",
     "spring.mail.username=",
@@ -85,10 +88,11 @@ class AuthFlowTest {
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"test-user@example.com\",\"password\":\"test-password\"}"))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(get("/api/auth/activate")
-                .param("token", activationToken))
+        mockMvc.perform(post("/api/auth/activate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"" + activationToken + "\"}"))
             .andExpect(status().isOk());
 
         String responseBody = mockMvc.perform(post("/api/auth/login")

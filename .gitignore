@@ -39,4 +39,4 @@ out/
 
 ### Environment secrets ###
 .env
-!backend/.env
+backend/.env

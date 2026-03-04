@@ -26,11 +26,16 @@ public class AppUser {
     private String email;
 
     @Column(nullable = false)
+    @Setter
     private String passwordHash;
 
     @Column(nullable = false)
     @Setter
     private boolean enabled;
+
+    @Column(nullable = false, columnDefinition = "integer not null default 0")
+    @Setter
+    private int tokenVersion;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -39,6 +44,7 @@ public class AppUser {
         this.email = email;
         this.passwordHash = passwordHash;
         this.enabled = enabled;
+        this.tokenVersion = 0;
         this.createdAt = Instant.now();
     }
 }

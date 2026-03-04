@@ -12,29 +12,29 @@ import org.thymeleaf.context.Context;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ActivationEmailService {
+public class PasswordResetEmailService {
 
     private final JavaMailSender mailSender;
-    private final ActivationProperties activationProperties;
+    private final PasswordResetProperties passwordResetProperties;
     private final TemplateEngine templateEngine;
 
-    public void sendActivationEmail(String toEmail, String token) {
-        String activationLink = activationProperties.baseUrl() + "/activate-account#token=" + token;
+    public void sendPasswordResetEmail(String toEmail, String token) {
+        String resetLink = passwordResetProperties.baseUrl() + "/reset-password#token=" + token;
         try {
             Context context = new Context();
-            context.setVariable("activationUrl", activationLink);
-            String htmlBody = templateEngine.process("email/activation-email", context);
+            context.setVariable("resetUrl", resetLink);
+            String htmlBody = templateEngine.process("email/password-reset-email", context);
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
-            helper.setFrom(activationProperties.fromEmail());
+            helper.setFrom(passwordResetProperties.fromEmail());
             helper.setTo(toEmail);
-            helper.setSubject("Aktywacja konta - AI Trading Journal");
+            helper.setSubject("Reset hasła - AI Trading Journal");
             helper.setText(htmlBody, true);
             mailSender.send(message);
         } catch (Exception ex) {
-            log.error("Nie udało się wysłać maila aktywacyjnego do {}", toEmail, ex);
-            throw new IllegalStateException("Wysyłka maila aktywacyjnego nie powiodła się", ex);
+            log.error("Nie udało się wysłać maila resetującego hasło do {}", toEmail, ex);
+            throw new IllegalStateException("Wysyłka maila resetującego hasło nie powiodła się", ex);
         }
     }
 }

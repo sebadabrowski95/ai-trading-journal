@@ -17,6 +17,10 @@ public class AppUserDetails implements UserDetails {
         return user.getId();
     }
 
+    public int getTokenVersion() {
+        return user.getTokenVersion();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));

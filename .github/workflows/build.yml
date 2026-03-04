@@ -1,9 +1,10 @@
-name: CI
+name: Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "backend-dev" ]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,14 +20,17 @@ jobs:
       SPRING_JPA_DDL_AUTO: update
       APP_JWT_EXPIRATION_SECONDS: 3600
       APP_ACTIVATION_BASE_URL: http://localhost:8080
-      APP_ACTIVATION_FROM_EMAIL: noreply@example.com
+      APP_ACTIVATION_FROM_EMAIL: ${{ secrets.MAIL_USERNAME }}
       APP_ACTIVATION_TOKEN_EXPIRATION_HOURS: 24
-      MAIL_HOST: localhost
-      MAIL_PORT: 1025
-      MAIL_USERNAME: ""
-      MAIL_PASSWORD: ""
-      MAIL_SMTP_AUTH: false
-      MAIL_SMTP_STARTTLS: false
+      APP_PASSWORD_RESET_BASE_URL: http://localhost:8080
+      APP_PASSWORD_RESET_FROM_EMAIL: ${{ secrets.MAIL_USERNAME }}
+      APP_PASSWORD_RESET_TOKEN_EXPIRATION_HOURS: 24
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_SMTP_AUTH: true
+      MAIL_SMTP_STARTTLS: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,6 +43,10 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        working-directory: backend
+        run: chmod +x gradlew
 
       - name: Build and test
         working-directory: backend

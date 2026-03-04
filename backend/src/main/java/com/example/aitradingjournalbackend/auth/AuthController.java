@@ -1,23 +1,25 @@
 package com.example.aitradingjournalbackend.auth;
 
+import com.example.aitradingjournalbackend.auth.dto.ActivationConfirmRequest;
 import com.example.aitradingjournalbackend.auth.dto.AuthResponse;
 import com.example.aitradingjournalbackend.auth.dto.LoginRequest;
-import com.example.aitradingjournalbackend.auth.dto.MessageResponse;
 import com.example.aitradingjournalbackend.auth.dto.MeResponse;
+import com.example.aitradingjournalbackend.auth.dto.MessageResponse;
+import com.example.aitradingjournalbackend.auth.dto.PasswordResetConfirmRequest;
+import com.example.aitradingjournalbackend.auth.dto.PasswordResetRequest;
 import com.example.aitradingjournalbackend.auth.dto.RegisterRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -37,13 +39,13 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public MessageResponse register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
-        return new MessageResponse("Konto utworzone. Sprawdź e-mail i aktywuj konto.");
+        return new MessageResponse("Jeśli rejestracja jest możliwa, wysłaliśmy wiadomość aktywacyjną.");
     }
 
-    @GetMapping("/activate")
+    @PostMapping("/activate")
     @ResponseStatus(HttpStatus.OK)
-    public MessageResponse activate(@RequestParam String token) {
-        authService.activateAccount(token);
+    public MessageResponse activate(@Valid @RequestBody ActivationConfirmRequest request) {
+        authService.activateAccount(request.token());
         return new MessageResponse("Konto aktywowane.");
     }
 
@@ -54,17 +56,31 @@ public class AuthController {
             authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(loginRequest.email(), loginRequest.password())
             );
-        } catch (DisabledException ex) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is not activated");
-        } catch (BadCredentialsException ex) {
+        } catch (DisabledException | BadCredentialsException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
-        } catch (AuthenticationException ex) {
+        } catch (AuthenticationServiceException ex) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication failed");
+        } catch (AuthenticationException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtService.generateToken(userDetails.getUsername());
+        AppUserDetails userDetails = (AppUserDetails) authentication.getPrincipal();
+        String token = jwtService.generateToken(userDetails.getUsername(), userDetails.getTokenVersion());
         return new AuthResponse(token, "Bearer", jwtService.getExpirationSeconds());
+    }
+
+    @PostMapping("/password-reset/request")
+    @ResponseStatus(HttpStatus.OK)
+    public MessageResponse requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        authService.requestPasswordReset(request);
+        return new MessageResponse("Jeśli konto istnieje, wysłaliśmy wiadomość z instrukcją resetu hasła.");
+    }
+
+    @PostMapping("/password-reset/confirm")
+    @ResponseStatus(HttpStatus.OK)
+    public MessageResponse confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        authService.confirmPasswordReset(request);
+        return new MessageResponse("Hasło zostało zmienione.");
     }
 
     @GetMapping("/me")

@@ -4,6 +4,7 @@ import com.example.aitradingjournalbackend.auth.ActivationProperties;
 import com.example.aitradingjournalbackend.auth.AppUserDetailsService;
 import com.example.aitradingjournalbackend.auth.JwtAuthenticationFilter;
 import com.example.aitradingjournalbackend.auth.JwtProperties;
+import com.example.aitradingjournalbackend.auth.PasswordResetProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,11 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableConfigurationProperties({JwtProperties.class, ActivationProperties.class})
+@EnableConfigurationProperties({
+    JwtProperties.class,
+    ActivationProperties.class,
+    PasswordResetProperties.class
+})
 public class SecurityConfig {
 
     @Bean
@@ -38,7 +43,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/activate").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/password-reset/request").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/password-reset/confirm").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/activate").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

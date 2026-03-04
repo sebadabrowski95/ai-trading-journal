@@ -44,6 +44,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        int tokenVersion = jwtService.extractTokenVersion(token);
+        if (!(userDetails instanceof AppUserDetails appUserDetails)
+            || appUserDetails.getTokenVersion() != tokenVersion) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         UsernamePasswordAuthenticationToken authenticationToken =
             UsernamePasswordAuthenticationToken.authenticated(userDetails, null, userDetails.getAuthorities());

@@ -15,10 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "email_verification_tokens")
+@Table(name = "password_reset_tokens")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EmailVerificationToken {
+public class PasswordResetToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class EmailVerificationToken {
     @Column
     private Instant usedAt;
 
-    public EmailVerificationToken(String token, AppUser user, Instant expiresAt) {
+    public PasswordResetToken(String token, AppUser user, Instant expiresAt) {
         this.token = token;
         this.user = user;
         this.expiresAt = expiresAt;

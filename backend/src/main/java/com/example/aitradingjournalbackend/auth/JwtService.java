@@ -28,11 +28,12 @@ public class JwtService {
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, int tokenVersion) {
         Instant now = Instant.now();
         Instant expiration = now.plusSeconds(jwtProperties.expirationSeconds());
         return Jwts.builder()
             .subject(username)
+            .claim("ver", tokenVersion)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(signingKey)
@@ -50,6 +51,11 @@ public class JwtService {
         } catch (JwtException | IllegalArgumentException ex) {
             return false;
         }
+    }
+
+    public int extractTokenVersion(String token) {
+        Integer version = parseClaims(token).get("ver", Integer.class);
+        return version != null ? version : 0;
     }
 
     public long getExpirationSeconds() {
