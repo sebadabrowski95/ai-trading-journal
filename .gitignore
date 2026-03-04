@@ -1,7 +1,7 @@
 HELP.md
 .gradle
 build/
-!.github/workflows/build.yml
+!.github/workflows/*.yml
 !backend/gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
