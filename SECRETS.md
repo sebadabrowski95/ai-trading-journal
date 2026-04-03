@@ -26,7 +26,7 @@ This project also requires the following CI variables:
 
 References:
 - CI workflow: `/.github/workflows/build.yml`
-- Application config: `/backend/src/main/resources/application.properties`
+- Application config: `/src/main/resources/application.properties`
 - GitHub Secrets docs: https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions
 
 
