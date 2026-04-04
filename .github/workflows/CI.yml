@@ -45,9 +45,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle wrapper executable
-        working-directory: backend
         run: chmod +x gradlew
 
       - name: Build and test
-        working-directory: backend
         run: ./gradlew test
