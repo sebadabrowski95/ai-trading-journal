@@ -39,14 +39,14 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public MessageResponse register(@Valid @RequestBody RegisterRequest request) {
         authService.register(request);
-        return new MessageResponse("Jeśli rejestracja jest możliwa, wysłaliśmy wiadomość aktywacyjną.");
+        return new MessageResponse("If registration is possible, we have sent an activation email.");
     }
 
     @PostMapping("/activate")
     @ResponseStatus(HttpStatus.OK)
     public MessageResponse activate(@Valid @RequestBody ActivationConfirmRequest request) {
         authService.activateAccount(request.token());
-        return new MessageResponse("Konto aktywowane.");
+        return new MessageResponse("Account activated.");
     }
 
     @PostMapping("/login")
@@ -73,14 +73,14 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     public MessageResponse requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
         authService.requestPasswordReset(request);
-        return new MessageResponse("Jeśli konto istnieje, wysłaliśmy wiadomość z instrukcją resetu hasła.");
+        return new MessageResponse("If an account exists, we have sent an email with password reset instructions.");
     }
 
     @PostMapping("/password-reset/confirm")
     @ResponseStatus(HttpStatus.OK)
     public MessageResponse confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {
         authService.confirmPasswordReset(request);
-        return new MessageResponse("Hasło zostało zmienione.");
+        return new MessageResponse("Password has been changed.");
     }
 
     @GetMapping("/me")

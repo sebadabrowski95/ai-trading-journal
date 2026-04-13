@@ -81,11 +81,45 @@ public class TransactionService {
     }
 
     @Transactional
+    public TransactionResponse updateTransaction(Long id,
+                                                 CreateTransactionRequest request,
+                                                 Authentication authentication) {
+        Long userId = currentUserId(authentication);
+        Transaction transaction = transactionRepository.findByIdAndUserId(id, userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
+
+        transaction.update(
+            request.position(),
+            request.symbol(),
+            request.type(),
+            request.volume(),
+            request.openTime(),
+            request.openPrice(),
+            request.closeTime(),
+            request.closePrice(),
+            request.sl(),
+            request.tp(),
+            request.margin(),
+            request.commission(),
+            request.swap(),
+            request.rollover(),
+            request.grossPl(),
+            request.comment()
+        );
+
+        return toResponse(transaction);
+    }
+
+    @Transactional
     public TransactionImportResponse importTransactions(org.springframework.web.multipart.MultipartFile file,
                                                         Authentication authentication) {
-        AppUser user = currentUser(authentication);
-        int importedCount = transactionExcelImportService.importExcel(file, user);
-        return new TransactionImportResponse(importedCount);
+         try {
+            AppUser user = currentUser(authentication);
+            var importResult = transactionExcelImportService.importExcel(file, user);
+            return importResult;
+        } catch (Exception ex) {
+            throw ex;
+        }
     }
 
     @Transactional(readOnly = true)

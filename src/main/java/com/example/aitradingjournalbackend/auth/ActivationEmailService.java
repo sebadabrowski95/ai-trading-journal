@@ -19,7 +19,7 @@ public class ActivationEmailService {
     private final TemplateEngine templateEngine;
 
     public void sendActivationEmail(String toEmail, String token) {
-        String activationLink = activationProperties.baseUrl() + "/activate-account#token=" + token;
+        String activationLink = activationProperties.baseUrl() + "/activate-account?token=" + token;
         try {
             Context context = new Context();
             context.setVariable("activationUrl", activationLink);
@@ -33,8 +33,8 @@ public class ActivationEmailService {
             helper.setText(htmlBody, true);
             mailSender.send(message);
         } catch (Exception ex) {
-            log.error("Nie udało się wysłać maila aktywacyjnego do {}", toEmail, ex);
-            throw new IllegalStateException("Wysyłka maila aktywacyjnego nie powiodła się", ex);
+            log.error("Failed to send activation email to {}", toEmail, ex);
+            throw new IllegalStateException("Activation email could not be sent", ex);
         }
     }
 }

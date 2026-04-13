@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
     }
 )
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Transaction {
 
@@ -103,6 +105,40 @@ public class Transaction {
                        BigDecimal grossPl,
                        String comment) {
         this.user = user;
+        this.position = position;
+        this.symbol = symbol;
+        this.type = type;
+        this.volume = volume;
+        this.openTime = openTime;
+        this.openPrice = openPrice;
+        this.closeTime = closeTime;
+        this.closePrice = closePrice;
+        this.sl = sl;
+        this.tp = tp;
+        this.margin = margin;
+        this.commission = commission;
+        this.swap = swap;
+        this.rollover = rollover;
+        this.grossPl = grossPl;
+        this.comment = comment;
+    }
+
+    public void update(String position,
+                       String symbol,
+                       String type,
+                       BigDecimal volume,
+                       Instant openTime,
+                       BigDecimal openPrice,
+                       Instant closeTime,
+                       BigDecimal closePrice,
+                       BigDecimal sl,
+                       BigDecimal tp,
+                       BigDecimal margin,
+                       BigDecimal commission,
+                       BigDecimal swap,
+                       BigDecimal rollover,
+                       BigDecimal grossPl,
+                       String comment) {
         this.position = position;
         this.symbol = symbol;
         this.type = type;

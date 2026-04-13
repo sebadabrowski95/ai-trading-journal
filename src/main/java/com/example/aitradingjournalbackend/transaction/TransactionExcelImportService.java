@@ -1,5 +1,6 @@
 package com.example.aitradingjournalbackend.transaction;
 
+import com.example.aitradingjournalbackend.transaction.dto.TransactionImportResponse;
 import com.example.aitradingjournalbackend.transaction.repo.TransactionRepository;
 import com.example.aitradingjournalbackend.user.AppUser;
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +57,7 @@ public class TransactionExcelImportService {
     private final TransactionRepository transactionRepository;
 
     @Transactional
-    public int importExcel(MultipartFile file, AppUser user) {
+    public TransactionImportResponse importExcel(MultipartFile file, AppUser user) {
         validateFile(file);
 
         try (InputStream inputStream = file.getInputStream(); Workbook workbook = new XSSFWorkbook(inputStream)) {
@@ -78,17 +78,62 @@ public class TransactionExcelImportService {
             Map<String, Integer> columns = readColumnIndexes(headerRow, formatter);
             ensureRequiredColumns(columns);
 
-            List<Transaction> transactions = new ArrayList<>();
+
+            Map<String, Transaction> mergedTransactions = new HashMap<>();
             for (int rowIndex = headerRow.getRowNum() + 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
                 if (row == null || isRowEmpty(row, formatter)) {
                     continue;
                 }
-                transactions.add(parseTransaction(row, columns, formatter, user, rowIndex + 1));
+                String symbolValue = optionalString(row, columns, "symbol", formatter);
+                if (symbolValue == null || symbolValue.trim().isEmpty()) {
+                    break;
+                }
+                String positionValue = optionalString(row, columns, "position", formatter);
+                if (positionValue == null || positionValue.trim().isEmpty()) {
+                    break;
+                }
+                Transaction transaction = parseTransaction(row, columns, formatter, user, rowIndex + 1);
+                String key = positionValue.trim();
+                if (mergedTransactions.containsKey(key)) {
+                    Transaction existing = mergedTransactions.get(key);
+                    existing.setVolume(existing.getVolume().add(transaction.getVolume()));
+                    existing.setGrossPl(existing.getGrossPl().add(transaction.getGrossPl()));
+                } else {
+                    mergedTransactions.put(key, transaction);
+                }
             }
-
-            transactionRepository.saveAll(transactions);
-            return transactions.size();
+            int updated = 0;
+            int added = 0;
+            for (Transaction transaction : mergedTransactions.values()) {
+                var existing = transactionRepository.findByUserIdAndPosition(user.getId(), transaction.getPosition());
+                if (existing.isPresent()) {
+                    Transaction toUpdate = existing.get();
+                    toUpdate.update(
+                                    transaction.getPosition(),
+                                    transaction.getSymbol(),
+                                    transaction.getType(),
+                                    transaction.getVolume(),
+                                    transaction.getOpenTime(),
+                                    transaction.getOpenPrice(),
+                                    transaction.getCloseTime(),
+                                    transaction.getClosePrice(),
+                                    transaction.getSl(),
+                                    transaction.getTp(),
+                                    transaction.getMargin(),
+                                    transaction.getCommission(),
+                                    transaction.getSwap(),
+                                    transaction.getRollover(),
+                                    transaction.getGrossPl(),
+                                    transaction.getComment()
+                                );
+                                transactionRepository.save(toUpdate);
+                            } else {
+                    transactionRepository.save(transaction);
+                    added++;
+                }
+            }
+            return new TransactionImportResponse(added + updated, added, updated);
         } catch (IOException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to read Excel file", ex);
         }
@@ -284,7 +329,6 @@ public class TransactionExcelImportService {
             try {
                 return LocalDateTime.parse(normalizedWhitespaceValue, dateFormatter).toInstant(ZoneOffset.UTC);
             } catch (DateTimeParseException ignored) {
-                // Try the next supported format.
             }
         }
 

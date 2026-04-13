@@ -19,7 +19,7 @@ public class PasswordResetEmailService {
     private final TemplateEngine templateEngine;
 
     public void sendPasswordResetEmail(String toEmail, String token) {
-        String resetLink = passwordResetProperties.baseUrl() + "/reset-password#token=" + token;
+        String resetLink = passwordResetProperties.baseUrl() + "/reset-password?token=" + token;
         try {
             Context context = new Context();
             context.setVariable("resetUrl", resetLink);
@@ -33,8 +33,8 @@ public class PasswordResetEmailService {
             helper.setText(htmlBody, true);
             mailSender.send(message);
         } catch (Exception ex) {
-            log.error("Nie udało się wysłać maila resetującego hasło do {}", toEmail, ex);
-            throw new IllegalStateException("Wysyłka maila resetującego hasło nie powiodła się", ex);
+            log.error("Failed to send password reset email to {}", toEmail, ex);
+            throw new IllegalStateException("Password reset email could not be sent", ex);
         }
     }
 }

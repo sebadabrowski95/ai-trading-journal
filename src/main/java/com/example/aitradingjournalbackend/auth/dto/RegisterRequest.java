@@ -9,7 +9,7 @@ public record RegisterRequest(
     @NotBlank
     @Pattern(
         regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,128}$",
-        message = "Hasło musi mieć minimum 8 znaków oraz zawierać małą literę, dużą literę, cyfrę i znak specjalny"
+        message = "Password must be at least 8 characters and include a lowercase letter, uppercase letter, digit, and special character"
     )
     String password
 ) {
