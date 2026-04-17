@@ -30,7 +30,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @GetMapping
+    @GetMapping("/list")
     public List<TransactionResponse> list(Authentication authentication) {
         return transactionService.findCurrentUserTransactions(authentication);
     }

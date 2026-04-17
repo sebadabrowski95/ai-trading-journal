@@ -24,4 +24,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
 
+    List<Transaction> findAllByUserIdAndCloseTimeGreaterThanEqualOrderByCloseTimeDesc(
+        Long userId,
+        Instant closeTimeFrom
+    );
 }

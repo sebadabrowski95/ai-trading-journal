@@ -57,10 +57,10 @@ public class Transaction {
     @Column(nullable = false, precision = 19, scale = 8)
     private BigDecimal openPrice;
 
-    @Column
+    @Column(nullable = false)
     private Instant closeTime;
 
-    @Column(precision = 19, scale = 8)
+    @Column(nullable = false, precision = 19, scale = 8)
     private BigDecimal closePrice;
 
     @Column(precision = 19, scale = 8)
