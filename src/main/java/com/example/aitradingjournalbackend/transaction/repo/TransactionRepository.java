@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Optional<Transaction> findByUserIdAndPosition(Long userId, String position);
     List<Transaction> findAllByUserIdOrderByOpenTimeDesc(Long userId);
+    List<Transaction> findTop70ByUserIdAndCloseTimeIsNotNullOrderByCloseTimeDesc(Long userId);
 
     List<Transaction> findAllByUserIdAndCloseTimeGreaterThanEqualAndCloseTimeLessThanOrderByCloseTimeAsc(
         Long userId,
@@ -23,9 +24,4 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     );
 
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
-
-    List<Transaction> findAllByUserIdAndCloseTimeGreaterThanEqualOrderByCloseTimeDesc(
-        Long userId,
-        Instant closeTimeFrom
-    );
 }

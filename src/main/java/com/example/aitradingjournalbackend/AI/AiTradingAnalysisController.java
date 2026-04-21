@@ -4,12 +4,14 @@ import com.example.aitradingjournalbackend.AI.dto.AiRequest;
 import com.example.aitradingjournalbackend.AI.dto.AiResponse;
 import com.example.aitradingjournalbackend.auth.AppUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
@@ -24,12 +26,15 @@ public class AiTradingAnalysisController {
         String userQuestion = (request != null && request.prompt() != null) 
                 ? request.prompt() 
                 : null;
-        
-        String response = aiTradingAnalysisService.analyzeUserTransactions(
-                userDetails.getUserId(), 
-                userQuestion
-        );
-        
-        return new AiResponse(response);
+
+        try {
+            String response = aiTradingAnalysisService.analyzeUserTransactions(
+                    userDetails.getUserId(),
+                    userQuestion
+            );
+            return new AiResponse(response);
+        } catch (Exception e) {
+            return new AiResponse(e.getMessage());
+        }
     }
 }
