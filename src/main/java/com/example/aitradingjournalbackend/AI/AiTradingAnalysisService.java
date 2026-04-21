@@ -92,8 +92,6 @@ public class AiTradingAnalysisService {
                 .system(systemPrompt)
                 .user(userSpec -> userSpec
                         .text("""
-                            Oto transakcje użytkownika z ostatnich {days} dni (posortowane od najnowszej do najstarszej):
-                            
                             Statystyki bazy:
                             - Łączna liczba transakcji: {count}
                             - Okres: od {oldest} do {newest}
@@ -104,7 +102,6 @@ public class AiTradingAnalysisService {
                             
                             Pytanie użytkownika: {question}
                             """)
-                        .param("days", LAST_7_DAYS)
                         .param("count", transactions.size())
                         .param("oldest", transactions.get(transactions.size() - 1).getCloseTime())
                         .param("newest", transactions.get(0).getCloseTime())
